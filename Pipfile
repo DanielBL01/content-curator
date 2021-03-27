@@ -9,6 +9,7 @@ verify_ssl = true
 flask = "*"
 redis = "*"
 newspaper3k = "*"
+nltk = "*"
 
 [requires]
 python_version = "3.8"

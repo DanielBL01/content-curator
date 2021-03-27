@@ -17,8 +17,9 @@ def content():
     content = parseURL.parse(request.args['url'])
     if content == '':
         return render_template('error.html')
-        
-    return render_template('content.html', content=content)
+    
+    summary = contentCurator.summerize(content)
+    return render_template('content.html', content=content, summary=summary)
 
 if __name__ == '__main__':
     app.run(debug=True)
