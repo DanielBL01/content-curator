@@ -5,4 +5,4 @@
 - Python/Flask
 - Redis
 - Newspaper API
-- NLTK (for tf-idf weighting)
+- NLTK (tf-idf weighting)

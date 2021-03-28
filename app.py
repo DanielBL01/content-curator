@@ -1,5 +1,5 @@
 from flask import Flask, session, render_template, request, redirect, url_for
-from utils import parseURL, contentCurator
+from utils import curateURL, summarizeText
 import redis 
 
 app = Flask(__name__)
@@ -16,19 +16,34 @@ def homepage():
 def content():
     url = request.args['url']
     if cache.exists(url):
-        summary = cache.get(url)
-        print('Getting summary from cache')
-        return render_template('content.html', summary = summary.decode('utf-8'))
+        summary = cache.hmget(url, 'summary')
+        date = cache.hmget(url, 'date')
+        print('Retrieve from Cache')
+        return render_template('content.html', summary = summary.decode('utf-8'), date = date.decode('utf-8'))
     
-    content = parseURL.parse(url)
-    if content == '':
+    text, date = curateURL.curate(url)
+    print(text)
+    print(date)
+    if text is None and date is None:
         return render_template('error.html')
+    elif text is None:
+        date = date.strftime('%m/%d/%Y, %H:%M:%S')
+        cache.hset(url, 'summary', 'Could not find text information.')
+        cache.hset(url, 'date', date)
+        return render_template('content.html', summary = 'Could not find text information', date = date)
+    elif date is None:
+        summary = summarizeText.summarize(text)
+        cache.hset(url, 'summary', summary)
+        cache.hset(url, 'date', 'Could not find the publish date')
+        return render_template('content.html', summary = summary, date = 'Could not find the publish date.')
 
-    summary = contentCurator.summerize(content)
-    print('Getting summary with contentCurator.py')
-    cache.set(url, summary)
+    summary = summarizeText.summarize(text)
+    date = date.strftime('%m/%d/%Y, %H:%M:%S')
+    print('Retrieve from curateURL.py')
+    cache.hset(url, 'summary', summary)
+    cache.hset(url, 'date', date)
 
-    return render_template('content.html', summary = summary)
+    return render_template('content.html', summary = summary, date = date)
 
 if __name__ == '__main__':
     app.run(debug=True)

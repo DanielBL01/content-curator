@@ -139,7 +139,7 @@ def generate(sentences, sentence_value, threshold):
 
     return summary
 
-def summerize(text):
+def summarize(text):
     sentences = sent_tokenize(text)
     total_documents = len(sentences)
 
@@ -150,6 +150,6 @@ def summerize(text):
     tf_idf_matrix = tfidfMatrix(tf_matrix, idf_matrix)
     sentence_scores = scoreSentences(tf_idf_matrix)
     threshold = averageScore(sentence_scores)
-    summary = generate(sentences, sentence_scores, 1.3 * threshold)
+    summary = generate(sentences, sentence_scores, 1.0 * threshold)
 
     return summary
