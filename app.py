@@ -14,12 +14,21 @@ def homepage():
 
 @app.route('/content')
 def content():
-    content = parseURL.parse(request.args['url'])
+    url = request.args['url']
+    if cache.exists(url):
+        summary = cache.get(url)
+        print('Getting summary from cache')
+        return render_template('content.html', summary = summary.decode('utf-8'))
+    
+    content = parseURL.parse(url)
     if content == '':
         return render_template('error.html')
-    
+
     summary = contentCurator.summerize(content)
-    return render_template('content.html', content=content, summary=summary)
+    print('Getting summary with contentCurator.py')
+    cache.set(url, summary)
+
+    return render_template('content.html', summary = summary)
 
 if __name__ == '__main__':
     app.run(debug=True)
